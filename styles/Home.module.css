@@ -1,0 +1,85 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: rgb(73, 73, 73);
+  height: max-content;
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100vw;
+  color: rgb(255, 255, 255);
+}
+
+.cameraContainer {
+  position: relative;
+  height: 480px;
+  margin-bottom: 10px;
+  object-fit: cover;
+}
+
+.age-box {
+  position: absolute;
+  width: 100%;
+  background-color: #0000005e;
+  bottom: 2%;
+  font-size: 72px;
+  text-align: center;
+  color: rgb(244, 192, 66);
+  padding: 1%;
+}
+
+.cameraDisplay {
+  height: 500px;
+  max-width: 100vw;
+  width: 600px;
+  transform: rotateY(180);
+  border: 2px solid white;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.mirrored {
+  transform: scaleX(-1);
+}
+
+.button {
+  background-color: #4155c4;
+  border-radius: 8px;
+  border-style: none;
+  box-sizing: border-box;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-block;
+  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial,
+    sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  height: 40px;
+  line-height: 20px;
+  list-style: none;
+  margin: 0;
+  outline: none;
+  padding: 10px 16px;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  transition: color 100ms;
+  vertical-align: baseline;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.button:hover,
+.button:focus {
+  background-color: #5d71e2;
+}
+
+.buttonContainer {
+  max-width: 100vw;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
