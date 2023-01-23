@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { useState } from "react";
 import { openCamera } from "@privateid/cryptonets-web-sdk-alpha";
-import {mapDevices} from '../utils';
+import { mapDevices } from "../utils";
 
 const useCamera = (element = "userVideo", resolution = null) => {
   // Initialize the state
@@ -60,7 +60,15 @@ const useCamera = (element = "userVideo", resolution = null) => {
     await setCameraFocus();
   };
 
-  return { ready, init, devices, device, setDevice, faceMode, ...cameraFeatures };
+  return {
+    ready,
+    init,
+    devices,
+    device,
+    setDevice,
+    faceMode,
+    ...cameraFeatures,
+  };
 };
 
 export default useCamera;

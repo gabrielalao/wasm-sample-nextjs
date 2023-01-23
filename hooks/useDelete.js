@@ -8,7 +8,9 @@ const useDelete = (onDeleteEnd, ready) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const callback = (result) => {
     setLoading(false);
-    onDeleteEnd(result.returnValue.status === 0 ? "success" : result.returnValue.message);
+    onDeleteEnd(
+      result.returnValue.status === 0 ? "success" : result.returnValue.message
+    );
   };
 
   const onDeleteUser = async (uuid) => {

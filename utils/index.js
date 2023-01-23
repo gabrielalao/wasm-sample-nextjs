@@ -52,7 +52,7 @@ export function getQueryParams(queryString) {
 
 export const isBackCamera = (availableDevices, currentDevice) => {
   const mediaDevice = availableDevices.find(
-      (device) => device.value === currentDevice
+    (device) => device.value === currentDevice
   );
   return mediaDevice?.label?.toLowerCase().includes("back");
 };
@@ -72,12 +72,13 @@ export const WIDTH_TO_STANDARDS = {
   1920: "FHD",
   2560: "2K",
   4096: "4K",
+  4032: "4K",
   5120: "5K",
   7680: "8K",
   10240: "10K",
 };
 
-export const CANVAS_SIZE = {
+const WEB_CANVAS_SIZE = {
   "10K": { width: 10240, height: 4320 },
   "8K": { width: 7680, height: 4320 },
   "5K": { width: 5120, height: 2880 },
@@ -88,4 +89,33 @@ export const CANVAS_SIZE = {
   UXGA: { width: 1600, height: 1200 },
 };
 
+const MOBILE_CANVAS_SIZE = {
+  "2K": { width: 2560, height: 1440 },
+  FHD: { width: 1920, height: 1080 },
+  UXGA: { width: 1600, height: 1200 },
+};
+
+export const CANVAS_SIZE = isMobile ? MOBILE_CANVAS_SIZE : WEB_CANVAS_SIZE
+
 export const mapDevices = devices => ({label: devices.label, value: devices.deviceId})
+
+export function getUrlParameter(sParam, defaultValue) {
+  const sPageURL = window.location.search.substring(1);
+  const sURLVariables = sPageURL.split('&');
+  let sParameterName;
+  let i;
+
+  for (i = 0; i < sURLVariables.length; i++) {
+    sParameterName = sURLVariables[i].split('=');
+
+    if (sParameterName[0] === sParam) {
+      return typeof sParameterName[1] === undefined ? defaultValue : decodeURIComponent(sParameterName[1]);
+    }
+  }
+  return defaultValue;
+};
+
+export const setMax2KForMobile = (width) => {
+  if(!isMobile) return width;
+  return Math.min(width, 2560);
+}

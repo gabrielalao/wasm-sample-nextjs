@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { convertCroppedImage, isValidPhotoID } from "@privateid/cryptonets-web-sdk-alpha";
+import {
+  convertCroppedImage,
+  isValidPhotoID,
+} from "@privateid/cryptonets-web-sdk-alpha";
 import { CANVAS_SIZE } from "../utils";
 
 let internalCanvasSize;
@@ -17,7 +20,8 @@ const useScanFrontDocument = (onSuccess) => {
   const [inputImage, setInputImage] = useState(null);
 
   // Cropped Front Document
-  const [croppedDocumentImageData, setCroppedDocumentImageData] = useState(null);
+  const [croppedDocumentImageData, setCroppedDocumentImageData] =
+    useState(null);
   const [croppedDocumentWidth, setCroppedDocumentWidth] = useState(null);
   const [croppedDocumentHeight, setCroppedDocumentHeight] = useState(null);
   const [croppedDocumentImage, setCroppedDocumentImage] = useState(null);
@@ -28,11 +32,25 @@ const useScanFrontDocument = (onSuccess) => {
   const [croppedMugshotHeight, setCroppedMugshotHeight] = useState(null);
   const [croppedMugshotImage, setCroppedMugshotImage] = useState(null);
 
+  // confidence value
+  const [confidenceValue, setConfidenceValue] = useState(null);
+
   const documentCallback = (result) => {
     console.log("Front scan callback result:", result);
-    if (result.returnValue.predict_status === 0) {
-      const { predict_status, uuid, guid, cropped_face_height, cropped_face_width, int_doc_width, int_doc_height } =
-        result.returnValue;
+    setConfidenceValue(result.returnValue.conf_level.toString());
+    if (
+      result.returnValue.predict_status === 0 &&
+      result.returnValue.op_status === 0
+    ) {
+      const {
+        predict_status,
+        uuid,
+        guid,
+        cropped_face_height,
+        cropped_face_width,
+        cropped_doc_width,
+        cropped_doc_height,
+      } = result.returnValue;
 
       setIsFound(true);
       setResultStatus(predict_status);
@@ -42,8 +60,8 @@ const useScanFrontDocument = (onSuccess) => {
       setCroppedMugshotWidth(cropped_face_width);
       setCroppedMugshotHeight(cropped_face_height);
 
-      setCroppedDocumentHeight(int_doc_height);
-      setCroppedDocumentWidth(int_doc_width);
+      setCroppedDocumentHeight(cropped_doc_height);
+      setCroppedDocumentWidth(cropped_doc_width);
     } else if (triggerValue) {
       setInputImageData(null);
       setCroppedDocumentImageData(null);
@@ -54,7 +72,11 @@ const useScanFrontDocument = (onSuccess) => {
 
   const convertImage = async (imageData, width, height, setState) => {
     if (imageData.length === width * height * 4) {
-      const convertedImage = await convertCroppedImage(imageData, width, height);
+      const convertedImage = await convertCroppedImage(
+        imageData,
+        width,
+        height
+      );
       setState(convertedImage);
     }
   };
@@ -62,54 +84,101 @@ const useScanFrontDocument = (onSuccess) => {
   // InputImage
   useEffect(() => {
     if (isFound && inputImageData) {
-      convertImage(inputImageData.data, inputImageData.width, inputImageData.height, setInputImage);
+      convertImage(
+        inputImageData.data,
+        inputImageData.width,
+        inputImageData.height,
+        setInputImage
+      );
     }
   }, [isFound, inputImageData]);
 
   // Cropped Document
   useEffect(() => {
-    if (isFound && croppedDocumentImageData && croppedDocumentWidth && croppedDocumentHeight) {
+    if (
+      isFound &&
+      croppedDocumentImageData &&
+      croppedDocumentWidth &&
+      croppedDocumentHeight
+    ) {
       console.log("before converting cropped face: ", {
         croppedDocumentImageData,
         croppedDocumentWidth,
         croppedDocumentHeight,
       });
-      convertImage(croppedDocumentImageData, croppedDocumentWidth, croppedDocumentHeight, setCroppedDocumentImage);
+      convertImage(
+        croppedDocumentImageData,
+        croppedDocumentWidth,
+        croppedDocumentHeight,
+        setCroppedDocumentImage
+      );
     }
-  }, [isFound, croppedDocumentImageData, croppedDocumentWidth, croppedDocumentHeight]);
+  }, [
+    isFound,
+    croppedDocumentImageData,
+    croppedDocumentWidth,
+    croppedDocumentHeight,
+  ]);
 
   // Cropped Mugshot
   useEffect(() => {
-    if (isFound && croppedMugshotImageData && croppedMugshotWidth && croppedMugshotHeight) {
+    if (
+      isFound &&
+      croppedMugshotImageData &&
+      croppedMugshotWidth &&
+      croppedMugshotHeight
+    ) {
       console.log("before converting cropped face: ", {
         croppedMugshotImageData,
         croppedMugshotWidth,
         croppedMugshotHeight,
       });
-      convertImage(croppedMugshotImageData, croppedMugshotWidth, croppedMugshotHeight, setCroppedMugshotImage);
+      convertImage(
+        croppedMugshotImageData,
+        croppedMugshotWidth,
+        croppedMugshotHeight,
+        setCroppedMugshotImage
+      );
     }
-  }, [isFound, croppedMugshotImageData, croppedMugshotWidth, croppedMugshotHeight]);
+  }, [
+    isFound,
+    croppedMugshotImageData,
+    croppedMugshotWidth,
+    croppedMugshotHeight,
+  ]);
 
   // Printing images
   useEffect(() => {
-    if (croppedDocumentImage && croppedMugshotImage && inputImage) {
-      console.log("FRONT DL SCAN IMAGES:", { croppedDocumentImage, croppedMugshotImage, inputImage });
-    }
+    //if (croppedDocumentImage && croppedMugshotImage && inputImage) {
+    console.log("FRONT DL SCAN IMAGES:", {
+      croppedDocumentImage,
+      croppedMugshotImage,
+      inputImage,
+    });
+    // }
   }, [croppedDocumentImage, croppedMugshotImage, inputImage]);
 
   const scanFrontDocument = async (canvasSize, initializeCanvas) => {
     if (canvasSize && canvasSize !== internalCanvasSize) {
       internalCanvasSize = canvasSize;
     }
-    const canvasObj = canvasSize ? CANVAS_SIZE[canvasSize] : internalCanvasSize ? CANVAS_SIZE[internalCanvasSize] : {};
-    const { result, imageData, croppedDocument, croppedMugshot } = await isValidPhotoID(
-      "PHOTO_ID_FRONT",
-      documentCallback,
-      true,
-      undefined,
-      undefined,
-      canvasObj
-    );
+    const canvasObj = canvasSize
+      ? CANVAS_SIZE[canvasSize]
+      : internalCanvasSize
+      ? CANVAS_SIZE[internalCanvasSize]
+      : {};
+    const { result, imageData, croppedDocument, croppedMugshot } =
+      await isValidPhotoID(
+        "PHOTO_ID_FRONT",
+        documentCallback,
+        true,
+        undefined,
+        {
+          input_image_format: "rgba",
+          blur_threshold_doc: 55.0,
+        },
+        canvasObj
+      );
     setInputImageData(imageData);
     setCroppedDocumentImageData(croppedDocument);
     setCroppedMugshotImageData(croppedMugshot);
@@ -128,6 +197,7 @@ const useScanFrontDocument = (onSuccess) => {
     inputImage,
     croppedDocumentImage,
     croppedMugshotImage,
+    confidenceValue,
   };
 };
 

@@ -1,19 +1,23 @@
-import { useState } from 'react';
-import { enrollPredict } from '@privateid/cryptonets-web-sdk-alpha';
+import { useState } from "react";
+import { enrollPredict } from "@privateid/cryptonets-web-sdk-alpha";
 
-const useEnroll = (element = 'userVideo', onSuccess, retryTimes = 4 , deviceId = null) => {
+const useEnroll = (
+  element = "userVideo",
+  onSuccess,
+  retryTimes = 4,
+  deviceId = null
+) => {
   const [faceDetected, setFaceDetected] = useState(false);
   const [enrollStatus, setEnrollStatus] = useState(null);
   const [progress, setProgress] = useState(0);
-  const [enrollData, setEnrollData] = useState(null)
+  const [enrollData, setEnrollData] = useState(null);
 
   let tries = 0;
 
   const enrollUser = async () => {
-      // eslint-disable-next-line no-unused-vars
-      const portrait = await enrollPredict(true, callback, {}, element, deviceId);
+    // eslint-disable-next-line no-unused-vars
+    const portrait = await enrollPredict(true, callback, {}, element, deviceId);
   };
-
 
   function wait(milliseconds) {
     const date = Date.now();
@@ -26,45 +30,45 @@ const useEnroll = (element = 'userVideo', onSuccess, retryTimes = 4 , deviceId =
   const getDisplayedMessage = (result) => {
     switch (result) {
       case -1:
-        return 'Please look at the camera';
+        return "Please look at the camera";
       case 0:
-        return 'Face detected';
+        return "Face detected";
       case 1:
-        return 'Image Spoof';
+        return "Image Spoof";
       case 2:
-        return 'Video Spoof';
+        return "Video Spoof";
       case 3:
-        return 'Video Spoof';
+        return "Video Spoof";
       case 4:
-        return 'Too far away';
+        return "Too far away";
       case 5:
-        return 'Too far to right';
+        return "Too far to right";
       case 6:
-        return 'Too far to left';
+        return "Too far to left";
       case 7:
-        return 'Too far up';
+        return "Too far up";
       case 8:
-        return 'Too far down';
+        return "Too far down";
       case 9:
-        return 'Too blurry';
+        return "Too blurry";
       case 10:
-        return 'PLEASE REMOVE EYEGLASSES';
+        return "PLEASE REMOVE EYEGLASSES";
       case 11:
-        return 'PLEASE REMOVE FACEMASK';
+        return "PLEASE REMOVE FACEMASK";
       default:
-        return '';
+        return "";
     }
   };
 
   const callback = async (result) => {
-    console.log("callback hook result:", result)
+    console.log("callback hook result:", result);
     switch (result.status) {
-      case 'VALID_FACE':
+      case "VALID_FACE":
         setFaceDetected(true);
         setEnrollStatus(null);
         setProgress(result.progress);
         break;
-      case 'INVALID_FACE':
+      case "INVALID_FACE":
         if (enrollStatus && enrollStatus?.length > 0) {
           wait(1500);
           setEnrollStatus(getDisplayedMessage(result.result));
@@ -74,13 +78,13 @@ const useEnroll = (element = 'userVideo', onSuccess, retryTimes = 4 , deviceId =
 
         setFaceDetected(false);
         break;
-      case 'ENROLLING':
-        setEnrollStatus('ENROLLING');
+      case "ENROLLING":
+        setEnrollStatus("ENROLLING");
         setFaceDetected(true);
         break;
-      case 'WASM_RESPONSE':
+      case "WASM_RESPONSE":
         if (result.returnValue?.status === 0) {
-          setEnrollStatus('ENROLL SUCCESS');
+          setEnrollStatus("ENROLL SUCCESS");
           setEnrollData(result.returnValue);
           onSuccess();
         }

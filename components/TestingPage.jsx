@@ -3,7 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 import {
   isValid,
   switchCamera,
-  setStopLoopContinuousEnrollPredict,
+  setStopLoopContinuousAuthentication,
+  closeCamera,
 } from "@privateid/cryptonets-web-sdk-alpha";
 
 import {
@@ -23,14 +24,17 @@ import {
   isAndroid,
   isBackCamera,
   isIOS,
+  isMobile,
   mapDevices,
   osVersion,
+  setMax2KForMobile,
   WIDTH_TO_STANDARDS,
 } from "../utils";
 
+import styles from "../styles/Home.module.css";
 import usePredictAge from "../hooks/usePredictAge";
 import useScanFrontDocumentWithoutPredict from "../hooks/useScanFrontDocumentWithoutPredict";
-import styles from "../styles/Home.module.css";
+import usePrividFaceISO from "../hooks/usePrividFaceISO";
 
 const Ready = () => {
   const { ready: wasmReady } = useWasm();
@@ -56,7 +60,9 @@ const Ready = () => {
       deviceCapabilities?.height?.max || capabilities?.height?.max;
     let label =
       WIDTH_TO_STANDARDS[
-        deviceCapabilities?.width?.max || capabilities?.width?.max
+        setMax2KForMobile(
+          deviceCapabilities?.width?.max || capabilities?.width?.max
+        )
       ];
     const sliceIndex = canvasList.findIndex((option) => option.value === label);
     const slicedArr = canvasList.slice(sliceIndex);
@@ -176,9 +182,9 @@ const Ready = () => {
   // stop Continuous predict
   useEffect(() => {
     if (currentAction !== "useContinuousPredict") {
-      setStopLoopContinuousEnrollPredict(true);
+      setStopLoopContinuousAuthentication(true);
     } else {
-      setStopLoopContinuousEnrollPredict(false);
+      setStopLoopContinuousAuthentication(false);
     }
   }, [currentAction]);
 
@@ -229,7 +235,9 @@ const Ready = () => {
     if (canvasSize) {
       await scanFrontDocument(canvasSize);
     } else {
-      await scanFrontDocument(canvasSizeOptions[1].value, () => {});
+      if (!isMobile) {
+        await scanFrontDocument(canvasSizeOptions[3].value, () => {});
+      }
       await scanFrontDocument(initialCanvasSize);
     }
   };
@@ -238,7 +246,7 @@ const Ready = () => {
   const handleBackSuccess = (result) => {
     console.log("BACK SCAN DATA: ", result);
   };
-  const { scanBackDocument, scannedCodeData } =
+  const { scanBackDocument, scannedCodeData, barcodeStatusCode } =
     useScanBackDocument(handleBackSuccess);
   const handleScanDocumentBack = async () => {
     setCurrentAction("useScanDocumentBack");
@@ -257,6 +265,10 @@ const Ready = () => {
     usePredictAge();
 
   const handlePredictAge = async () => {
+    console.log(
+      229,
+      `${performance.memory.usedJSHeapSize / Math.pow(1000, 2)} MB`
+    );
     setCurrentAction("usePredictAge");
     await doPredictAge();
   };
@@ -279,8 +291,11 @@ const Ready = () => {
 
   // Scan Front DL without predict
 
-  const { isFound: isfoundValidity, scanFrontDocument: scanFrontValidity } =
-    useScanFrontDocumentWithoutPredict();
+  const {
+    isFound: isfoundValidity,
+    scanFrontDocument: scanFrontValidity,
+    confidenceValue,
+  } = useScanFrontDocumentWithoutPredict();
 
   const handleFrontDLValidity = async () => {
     setCurrentAction("useScanDocumentFrontValidity");
@@ -318,9 +333,29 @@ const Ready = () => {
     }
   };
 
-  // console.log("API KEY: ", process.env.REACT_APP_API_KEY);
+  const {
+    doFaceISO,
+    inputImage,
+    faceISOImageData,
+    faceISOStatus,
+    faceISOError,
+  } = usePrividFaceISO();
+
+  const handlePrividFaceISO = () => {
+    setCurrentAction("privid_face_iso");
+    doFaceISO();
+  };
+
+  const handleReopenCamera = async () => {
+    await init();
+  };
+
+  const handleCloseCamera = async () => {
+    await closeCamera();
+  };
+
   return (
-    <div id="canvasInput" className={styles.container}>
+    <div id="canvasInput" className="container">
       <div
         style={{
           height: "100%",
@@ -343,6 +378,17 @@ const Ready = () => {
           }}
         >
           <div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: "20px",
+                padding: "10px",
+              }}
+            >
+              <button onClick={handleReopenCamera}> Open Camera</button>
+              <button onClick={handleCloseCamera}> Close Camera</button>
+            </div>
             <label> Select Camera: </label>
             <select
               value={deviceId || device}
@@ -460,6 +506,7 @@ const Ready = () => {
 
           {currentAction === "useScanDocumentFront" && (
             <div>
+              <h2> {`Confidence Value: ${confidenceValue}`}</h2>
               <div>{`Scan Document Result: ${
                 resultStatus === 0 ? "success" : "not found"
               }`}</div>
@@ -471,6 +518,7 @@ const Ready = () => {
 
           {currentAction === "useScanDocumentBack" && (
             <div>
+              <h2> {`Barcode Status Code: ${barcodeStatusCode}`}</h2>
               <div>{`Scanned code data: ${
                 scannedCodeData ? "success" : "not found"
               }`}</div>
@@ -511,6 +559,32 @@ const Ready = () => {
               }`}</div>
             </div>
           )}
+
+          {currentAction === "privid_face_iso" && (
+            <div
+              style={{
+                display: "flex",
+                gap: "30px",
+                flexWrap: "wrap",
+                flexDirection: "column",
+              }}
+            >
+              <div> FACE ISO STATUS: {faceISOStatus} </div>
+              <div> FACE ISO Error: {faceISOError} </div>
+              <div>
+                <h2>Input Image:</h2>
+                {inputImage && (
+                  <img style={{ maxWidth: "400px" }} src={inputImage} />
+                )}
+              </div>
+              <div>
+                <h2>Output Image:</h2>
+                {faceISOImageData && (
+                  <img style={{ maxWidth: "400px" }} src={faceISOImageData} />
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         <div id="module_functions" className={styles.buttonContainer}>
@@ -540,6 +614,9 @@ const Ready = () => {
           </button>
           <button className={styles.button} onClick={handleScanDocumentBack}>
             Scan Back Document
+          </button>
+          <button className={styles.button} onClick={handlePrividFaceISO}>
+            Face ISO
           </button>
         </div>
       </div>

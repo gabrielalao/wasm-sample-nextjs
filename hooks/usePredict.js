@@ -1,7 +1,16 @@
-import { useState } from 'react';
-import { enrollPredict, predictOneFA } from '@privateid/cryptonets-web-sdk-alpha';
+import { useState } from "react";
+import {
+  enrollPredict,
+  predictOneFA,
+} from "@privateid/cryptonets-web-sdk-alpha";
 
-const usePredict = (element, onSuccess, onFailure, onNotFound, retryTimes = 1) => {
+const usePredict = (
+  element,
+  onSuccess,
+  onFailure,
+  onNotFound,
+  retryTimes = 1
+) => {
   const [faceDetected, setFaceDetected] = useState(false);
   const [predictResultData, setPredictResultData] = useState(null);
   let successCallback = null;
@@ -9,12 +18,16 @@ const usePredict = (element, onSuccess, onFailure, onNotFound, retryTimes = 1) =
   let failureTries = 0;
 
   const predictUser = async (onSuccessCallback) => {
-      if (onSuccessCallback) {
-        successCallback = onSuccessCallback;
-      }
-      await predictOneFA(callback, {
-        input_image_format: 'rgba',
-      }, element);
+    if (onSuccessCallback) {
+      successCallback = onSuccessCallback;
+    }
+    await predictOneFA(
+      callback,
+      {
+        input_image_format: "rgba",
+      },
+      element
+    );
   };
 
   // const stopTracks = () => {
@@ -24,23 +37,29 @@ const usePredict = (element, onSuccess, onFailure, onNotFound, retryTimes = 1) =
 
   const callback = async (result) => {
     switch (result.status) {
-      case 'VALID_FACE':
+      case "VALID_FACE":
         setFaceDetected(true);
         break;
-      case 'INVALID_FACE':
+      case "INVALID_FACE":
         if (failureTries === retryTimes) {
           onNotFound();
         } else {
           failureTries += 1;
         }
         break;
-      case 'WASM_RESPONSE':
+      case "WASM_RESPONSE":
       case -1:
         if (result.returnValue.status === 0) {
           // stopTracks();
-          setPredictResultData(result.returnValue.PI.guid, result.returnValue.PI.uuid)
+          setPredictResultData(
+            result.returnValue.PI.guid,
+            result.returnValue.PI.uuid
+          );
           if (successCallback) {
-            successCallback(result.returnValue.PI.guid, result.returnValue.PI.uuid);
+            successCallback(
+              result.returnValue.PI.guid,
+              result.returnValue.PI.uuid
+            );
           } else {
             onSuccess(result.returnValue.PI.guid, result.returnValue.PI.uuid);
           }
@@ -61,7 +80,7 @@ const usePredict = (element, onSuccess, onFailure, onNotFound, retryTimes = 1) =
     }
   };
 
-  return { faceDetected, predictUser, predictResultData};
+  return { faceDetected, predictUser, predictResultData };
 };
 
 export default usePredict;

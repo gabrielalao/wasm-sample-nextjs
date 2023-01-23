@@ -1,5 +1,5 @@
 
-export const getDisplayedMessage = (result) => {
+ export const getDisplayedMessage = (result) => {
   switch (result) {
     case -1:
       return 'No Face';
@@ -34,7 +34,7 @@ export const getDisplayedMessage = (result) => {
 
 export function iOS() {
   return ['iPad Simulator', 'iPhone Simulator', 'iPod Simulator', 'iPad', 'iPhone', 'iPod'].includes(
-      navigator.platform,
+    navigator.platform,
   );
 }
 
@@ -66,7 +66,7 @@ export function getiOSversion() {
 }
 
 export function getAndroidVersion() {
-  let ua = navigator.userAgent.toLowerCase();
+  let ua = navigator.userAgent.toLowerCase(); 
   var match = ua.match(/android\s([0-9\.]*)/i);
   return match ? match[1] : undefined;
 };

@@ -10,8 +10,7 @@ const useScanFrontDocumentWithoutPredict = () => {
     console.log("Front scan callback result:", result);
     if (result.returnValue.op_status === 0) {
       setIsFound(true);
-    }
-    else {
+    } else {
       setIsFound(false);
       scanFrontDocument();
     }
