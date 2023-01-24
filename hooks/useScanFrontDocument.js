@@ -33,11 +33,11 @@ const useScanFrontDocument = (onSuccess) => {
   const [croppedMugshotImage, setCroppedMugshotImage] = useState(null);
 
   // confidence value
-  const [confidenceValue, setConfidenceValue] = useState(null);
+  const [resultResponse, setResultResponse] = useState(null);
 
   const documentCallback = (result) => {
     console.log("Front scan callback result:", result);
-    setConfidenceValue(result.returnValue.conf_level.toString());
+    setResultResponse(result.returnValue);
     if (
       result.returnValue.predict_status === 0 &&
       result.returnValue.op_status === 0
@@ -149,13 +149,13 @@ const useScanFrontDocument = (onSuccess) => {
 
   // Printing images
   useEffect(() => {
-    //if (croppedDocumentImage && croppedMugshotImage && inputImage) {
-    console.log("FRONT DL SCAN IMAGES:", {
-      croppedDocumentImage,
-      croppedMugshotImage,
-      inputImage,
-    });
-    // }
+    if (croppedDocumentImage && croppedMugshotImage && inputImage) {
+      console.log("FRONT DL SCAN IMAGES:", {
+        croppedDocumentImage,
+        croppedMugshotImage,
+        inputImage,
+      });
+    }
   }, [croppedDocumentImage, croppedMugshotImage, inputImage]);
 
   const scanFrontDocument = async (canvasSize, initializeCanvas) => {
@@ -175,7 +175,6 @@ const useScanFrontDocument = (onSuccess) => {
         undefined,
         {
           input_image_format: "rgba",
-          blur_threshold_doc: 55.0,
         },
         canvasObj
       );
@@ -183,7 +182,7 @@ const useScanFrontDocument = (onSuccess) => {
     setCroppedDocumentImageData(croppedDocument);
     setCroppedMugshotImageData(croppedMugshot);
 
-    onSuccess({ result, imageData, croppedDocument, croppedMugshot });
+    // onSuccess({ result, imageData, croppedDocument, croppedMugshot });
   };
 
   return {
@@ -197,7 +196,7 @@ const useScanFrontDocument = (onSuccess) => {
     inputImage,
     croppedDocumentImage,
     croppedMugshotImage,
-    confidenceValue,
+    resultResponse,
   };
 };
 

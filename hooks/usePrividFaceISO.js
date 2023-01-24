@@ -17,7 +17,6 @@ const usePrividFaceISO = () => {
 
   const faceISOCallback = (response) => {
     console.log("==========> FACE_ISO_RESPONSE", response);
-    // {"status":0,"iso_image_width":360,"iso_image_height":480,"iso_image_channels":3,"confidence":0.9739335775375366}
     try {
       setFaceISOStatus(response.returnValue.status);
       setFaceISOError(response.returnValue.error);
@@ -79,7 +78,7 @@ const usePrividFaceISO = () => {
     const { result, imageOutput } = await faceISO(faceISOCallback, {
       input_image_format: "rgba",
     });
-    console.log("FACE ISO RESULT:", { result, imageOutput });
+    // console.log("FACE ISO RESULT:", { result, imageOutput });
     setFaceISOData(imageOutput);
   };
 

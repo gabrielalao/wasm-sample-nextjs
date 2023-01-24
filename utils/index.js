@@ -65,6 +65,8 @@ export const canvasSizeOptions = [
   { label: "2K", value: "2K" },
   { label: "FHD (1080p)", value: "FHD" },
   { label: "UXGA", value: "UXGA" },
+  { label: "SXGA", value: "SXGA" },
+  { label: "SXGA2", value: "SXGA2" },
 ];
 
 export const WIDTH_TO_STANDARDS = {
@@ -87,35 +89,44 @@ const WEB_CANVAS_SIZE = {
   FHD: { width: 1920, height: 1080 },
   iPhoneCC: { width: 1920, height: 1440 },
   UXGA: { width: 1600, height: 1200 },
+  SXGA: { width: 1280, height: 1024 },
+  SXGA2: { width: 1280, height: 960 },
 };
 
 const MOBILE_CANVAS_SIZE = {
   "2K": { width: 2560, height: 1440 },
   FHD: { width: 1920, height: 1080 },
   UXGA: { width: 1600, height: 1200 },
+  SXGA: { width: 1280, height: 1024 },
+  SXGA2: { width: 1280, height: 960 },
 };
 
-export const CANVAS_SIZE = isMobile ? MOBILE_CANVAS_SIZE : WEB_CANVAS_SIZE
+export const CANVAS_SIZE = isMobile ? MOBILE_CANVAS_SIZE : WEB_CANVAS_SIZE;
 
-export const mapDevices = devices => ({label: devices.label, value: devices.deviceId})
+export const mapDevices = (devices) => ({
+  label: devices.label,
+  value: devices.deviceId,
+});
 
 export function getUrlParameter(sParam, defaultValue) {
   const sPageURL = window.location.search.substring(1);
-  const sURLVariables = sPageURL.split('&');
+  const sURLVariables = sPageURL.split("&");
   let sParameterName;
   let i;
 
   for (i = 0; i < sURLVariables.length; i++) {
-    sParameterName = sURLVariables[i].split('=');
+    sParameterName = sURLVariables[i].split("=");
 
     if (sParameterName[0] === sParam) {
-      return typeof sParameterName[1] === undefined ? defaultValue : decodeURIComponent(sParameterName[1]);
+      return typeof sParameterName[1] === undefined
+        ? defaultValue
+        : decodeURIComponent(sParameterName[1]);
     }
   }
   return defaultValue;
-};
+}
 
 export const setMax2KForMobile = (width) => {
-  if(!isMobile) return width;
+  if (!isMobile) return width;
   return Math.min(width, 2560);
-}
+};

@@ -52,6 +52,7 @@ const Ready = () => {
     documentUUID,
     documentGUID,
     setShouldTriggerCallback,
+    resultResponse,
   } = useScanFrontDocument(handleFrontSuccess);
   const [deviceCapabilities, setDeviceCapabilities] = useState(capabilities);
   const canvasSizeList = useMemo(() => {
@@ -93,6 +94,7 @@ const Ready = () => {
   const {
     faceDetected: continuousFaceDetected,
     predictUser: continuousPredictUser,
+    continuousPredictMessage,
   } = useContinuousPredict(
     "userVideo",
     continuousPredictSuccess,
@@ -164,9 +166,8 @@ const Ready = () => {
   };
   const {
     predictOneFaData,
-    predictOneFaStatus,
     predictOneFaaceDetected,
-    predictOneFaprogress,
+    predictMessage,
     predictUserOneFa,
   } = usePredictOneFa("userVideo", handlePreidctSuccess);
   const handlePredictOneFa = async () => {
@@ -291,12 +292,8 @@ const Ready = () => {
 
   // Scan Front DL without predict
 
-  const {
-    isFound: isfoundValidity,
-    scanFrontDocument: scanFrontValidity,
-    confidenceValue,
-  } = useScanFrontDocumentWithoutPredict();
-
+  const { isFound: isfoundValidity, scanFrontDocument: scanFrontValidity } =
+    useScanFrontDocumentWithoutPredict();
   const handleFrontDLValidity = async () => {
     setCurrentAction("useScanDocumentFrontValidity");
     await scanFrontValidity();
@@ -472,6 +469,7 @@ const Ready = () => {
               <div>{`Face Valid: ${
                 continuousFaceDetected ? "Face Detected" : "Face not detected"
               }`}</div>
+              <div>{`Message: ${continuousPredictMessage}`}</div>
               <div>{`Predicted GUID: ${
                 continuousPredictGUID ? continuousPredictGUID : ""
               }`}</div>
@@ -486,6 +484,7 @@ const Ready = () => {
               <div>{`Face Valid: ${
                 predictOneFaaceDetected ? "Face Detected" : "Face not detected"
               }`}</div>
+              <div>{`Message: ${predictMessage}`}</div>
               <div>{`Predicted GUID: ${
                 predictOneFaData ? predictOneFaData.PI.guid : ""
               }`}</div>
@@ -506,10 +505,9 @@ const Ready = () => {
 
           {currentAction === "useScanDocumentFront" && (
             <div>
-              <h2> {`Confidence Value: ${confidenceValue}`}</h2>
-              <div>{`Scan Document Result: ${
-                resultStatus === 0 ? "success" : "not found"
-              }`}</div>
+              <h2> {`Confidence Value: ${resultResponse?.conf_level}`}</h2>
+              <div>{`Predict Status: ${resultResponse?.predict_message}`}</div>
+              <div>{`Scan Document Result: ${resultResponse?.op_message}`}</div>
               <div>{`Has found valid document: ${isFound}`}</div>
               <div>{`Document GUID: ${documentGUID}`} </div>
               <div>{`Document UUID: ${documentUUID}`} </div>
@@ -570,7 +568,6 @@ const Ready = () => {
               }}
             >
               <div> FACE ISO STATUS: {faceISOStatus} </div>
-              <div> FACE ISO Error: {faceISOError} </div>
               <div>
                 <h2>Input Image:</h2>
                 {inputImage && (
