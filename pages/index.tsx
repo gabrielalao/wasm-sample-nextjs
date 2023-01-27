@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 const DynamicComponentWithCustomLoading = dynamic(
-  () => import("../components/TestingPage"),
+  () => import("../components/Landing"),
   {
     loading: () => <p>...</p>,
     ssr: false,
