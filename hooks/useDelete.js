@@ -2,7 +2,7 @@ import { useState } from "react";
 import { deleteUser } from "@privateid/cryptonets-web-sdk-alpha";
 
 // useDelete
-const useDelete = (onDeleteEnd, ready) => {
+const useDelete = (onDeleteEnd) => {
   const [loading, setLoading] = useState(false);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
