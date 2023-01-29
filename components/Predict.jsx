@@ -4,7 +4,7 @@ import Camera from "./Camera";
 import { usePredictOneFa } from "../hooks";
 
 const Predict = () => {
-    const handlePreidctSuccess = (result) => {
+    const handlePredictSuccess = (result) => {
         console.log("======PREDICT SUCCESS========");
       };
       const {
@@ -12,7 +12,7 @@ const Predict = () => {
         predictOneFaaceDetected,
         predictMessage,
         predictUserOneFa,
-      } = usePredictOneFa("userVideo", handlePreidctSuccess);
+      } = usePredictOneFa("userVideo", handlePredictSuccess);
       const handlePredictOneFa = async () => {
         predictUserOneFa();
       };
@@ -34,7 +34,7 @@ const Predict = () => {
             </div>
           )}
         </Camera>
-        
+
 
       <div id="module_functions" className={styles.buttonContainer}>
         <button className={styles.button} onClick={handlePredictOneFa}>

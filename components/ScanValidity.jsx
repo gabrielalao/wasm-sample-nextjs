@@ -16,7 +16,7 @@ const ScanValidity = () => {
 
   return (
     <div id="canvasInput" className={styles.container}>
-      <Camera isBack>
+      <Camera currentAction={"useScanDocumentFrontValidity"}>
       {currentAction === "useScanDocumentFrontValidity" && (
             <div>
               <div>{`Scan Document Result: ${
@@ -25,7 +25,7 @@ const ScanValidity = () => {
             </div>
           )}
         </Camera>
-        
+
 
       <div id="module_functions" className={styles.buttonContainer}>
         <button className={styles.button} onClick={handleFrontDLValidity}>

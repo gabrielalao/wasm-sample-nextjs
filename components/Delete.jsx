@@ -7,15 +7,13 @@ import { useEffect, useState } from "react";
 const Delete = () => {
     const [currentAction, setCurrentAction] = useState(null);
     const [deletionStatus, setDeletionStatus] = useState(null);
-    const handlePreidctSuccess = (result) => {
+    const handlePredictSuccess = (result) => {
         console.log("======PREDICT SUCCESS========");
       };
       const {
         predictOneFaData,
-        predictOneFaaceDetected,
-        predictMessage,
         predictUserOneFa,
-      } = usePredictOneFa("userVideo", handlePreidctSuccess);
+      } = usePredictOneFa("userVideo", handlePredictSuccess);
       const handlePredictOneFa = async () => {
         predictUserOneFa();
       };
@@ -52,7 +50,7 @@ const Delete = () => {
             </div>
           )}
         </Camera>
-        
+
 
       <div id="module_functions" className={styles.buttonContainer}>
         <button className={styles.button} onClick={handleDelete}>

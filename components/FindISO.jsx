@@ -12,8 +12,8 @@ const FindISO = () => {
         faceISOStatus,
         faceISOError,
       } = usePrividFaceISO();
-    
-      const handlePrividFaceISO = () => {
+
+      const handleFaceISO = () => {
         doFaceISO();
       };
 console.log({faceISOStatus})
@@ -45,10 +45,10 @@ console.log({faceISOStatus})
             </div>
           {/* )} */}
         </Camera>
-        
+
 
       <div id="module_functions" className={styles.buttonContainer}>
-        <button className={styles.button} onClick={handlePrividFaceISO}>
+        <button className={styles.button} onClick={handleFaceISO}>
           Find ISO
         </button>
       </div>
