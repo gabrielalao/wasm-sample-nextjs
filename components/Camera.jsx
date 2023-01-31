@@ -36,7 +36,6 @@ const Camera = ({
           deviceCapabilities?.width?.max || capabilities?.width?.max
         )
       ];
-
     const sliceIndex = canvasList.findIndex((option) => option.value === label);
     const slicedArr = canvasList.slice(sliceIndex);
     if (label === "FHD" && maxHeight === 1440) {
@@ -75,6 +74,16 @@ const Camera = ({
 
   const handleSwitchCamera = async (e) => {
     setDeviceId(e.target.value);
+    const { capabilities = {}, settings = {}, devices } = await switchCamera(null, e.target.value);
+    setDeviceCapabilities(capabilities);
+    // setDevicesList(devices.map(mapDevices));
+    if (isDocumentScan) {
+      let width = WIDTH_TO_STANDARDS[settings?.width];
+      if (width === "FHD" && settings?.height === 1440) {
+        width = "iPhoneCC";
+      }
+      await handleCanvasSize({ target: { value: width } }, true);
+    }
   };
 
   const handleCanvasSize = async (e, skipSwitchCamera = false) => {
@@ -82,7 +91,7 @@ const Camera = ({
     setCanvasSize(e.target.value);
     const canvasSize = CANVAS_SIZE[e.target.value];
     if (!skipSwitchCamera) {
-      const { capabilities = {} } = await switchCamera(
+      const { capabilities = {}, settings } = await switchCamera(
         null,
         deviceId || device,
         canvasSize
@@ -134,7 +143,7 @@ const Camera = ({
             })}
           </select>
         </div>
-        {isDocumentScan ? (
+        {isDocumentScan && ready ? (
           <div>
             <label> Canvas Size: </label>
             <select
@@ -156,7 +165,7 @@ const Camera = ({
         id="userVideo"
         className={`
                 ${styles.cameraDisplay} 
-                ${isBack ? "" : styles.mirrored}
+                ${isBack || isDocumentScan ? "" : styles.mirrored}
               `}
         muted
         autoPlay

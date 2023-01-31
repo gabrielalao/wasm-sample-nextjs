@@ -19,7 +19,6 @@ const ScanFrontDocument = () => {
     setShouldTriggerCallback,
     resultResponse,
   } = useScanFrontDocument(handleFrontSuccess);
-
   const handleCallbackFromCanvasSizeChange = (size) => {
     setCanvasSize(size);
     setTimeout(async () => scanFrontDocument(size), 1000);

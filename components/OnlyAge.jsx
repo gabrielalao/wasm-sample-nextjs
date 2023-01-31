@@ -21,7 +21,7 @@ const OnlyAge = () => {
     setPredictAge(true);
     doPredictAge();
   };
-  console.log({age})
+
   return (
     <div id="canvasInput" className={styles.container}>
       <Camera>
@@ -31,7 +31,7 @@ const OnlyAge = () => {
           </div>
         )}
         </Camera>
-        
+
 
       <div id="module_functions" className={styles.buttonContainer}>
         <button className={styles.button} onClick={handlePredictAge}>

@@ -160,13 +160,13 @@ const useScanBackDocument = (onSuccess) => {
   }, [croppedDocumentImage, croppedBarcodeImage, inputImage]);
 
   const scanBackDocument = async (canvasSize) => {
-    if (canvasSize && canvasSize !== internalCanvasSize) {
-      internalCanvasSize = canvasSize;
-    }
+    // if (canvasSize && canvasSize !== internalCanvasSize) {
+    //   internalCanvasSize = canvasSize;
+    // }
     const canvasObj = canvasSize
       ? CANVAS_SIZE[canvasSize]
-      : internalCanvasSize
-      ? CANVAS_SIZE[internalCanvasSize]
+      // : internalCanvasSize
+      // ? CANVAS_SIZE[internalCanvasSize]
       : {};
     const { result, croppedBarcode, croppedDocument, imageData } =
       await isValidPhotoID(

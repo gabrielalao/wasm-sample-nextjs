@@ -164,13 +164,13 @@ const useScanFrontDocument = (onSuccess) => {
     }
     const canvasObj = canvasSize
       ? CANVAS_SIZE[canvasSize]
-      : internalCanvasSize
-      ? CANVAS_SIZE[internalCanvasSize]
+      // : internalCanvasSize
+      // ? CANVAS_SIZE[internalCanvasSize]
       : {};
     const { result, imageData, croppedDocument, croppedMugshot } =
       await isValidPhotoID(
         "PHOTO_ID_FRONT",
-        documentCallback,
+          initializeCanvas || documentCallback,
         true,
         undefined,
         {

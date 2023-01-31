@@ -16,7 +16,7 @@ const FindISO = () => {
       const handleFaceISO = () => {
         doFaceISO();
       };
-console.log({faceISOStatus})
+
   return (
     <div id="canvasInput" className={styles.container}>
       <Camera>
