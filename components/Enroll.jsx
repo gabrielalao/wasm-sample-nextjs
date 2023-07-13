@@ -6,14 +6,13 @@ import { useEnrollOneFa } from "../hooks";
 
 const Enroll = () => {
     const [deviceId, setDeviceId] = useState('')
-    const useEnrollSuccess = () => console.log("=======ENROLL SUCCESS=======");
   const {
     faceDetected: enrollOneFaFaceDetected,
     enrollStatus: enrollOneFaStatus,
     enrollData: enrollOneFaData,
     enrollUserOneFa,
     progress: enrollOneFaProgress,
-  } = useEnrollOneFa("userVideo", useEnrollSuccess, null, deviceId);
+  } = useEnrollOneFa();
   const handleEnrollOneFa = async () => {
     enrollUserOneFa();
   };

@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
   enrollPredict,
   predictOneFA,
-} from "@privateid/cryptonets-web-sdk-alpha";
+} from "@privateid/cryptonets-web-sdk";
 
 const usePredict = (
   element,

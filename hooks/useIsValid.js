@@ -1,14 +1,20 @@
 import { useState } from "react";
-import { isValid } from "@privateid/cryptonets-web-sdk-alpha";
+import { isValid } from "@privateid/cryptonets-web-sdk";
 
-const useIsValid = (element = "userVideo", deviceId = null) => {
+
+const useIsValid = () => {
+  const [loop, setLoop] = useState(false);
   const [faceDetected, setFaceDetected] = useState(false);
   const [hasFinished, setHasFinished] = useState(false);
-  const isValidCall = async () => {
-    // eslint-disable-next-line no-unused-vars
-    const result = await isValid(callback);
-    console.log("NEW IS VALID RETURNED DATA:", result);
-    // result = undefined;
+  const [exposureValue, setExposureValue] = useState(0);
+
+  const isValidCall = async (loopIsValid) => {
+    setLoop(loopIsValid);
+    setTimeout(()=>{
+       isValid(callback, undefined, {
+        input_image_format: "rgba",
+      });
+    },500)
   };
 
   const callback = async (result) => {
@@ -18,20 +24,24 @@ const useIsValid = (element = "userVideo", deviceId = null) => {
         if (result.returnValue.faces.length === 0) {
           setFaceDetected(false);
         } else {
-          if (result.returnValue.faces[0].status === 0) {
-            setFaceDetected(true);
-          }
-          if (result.returnValue.faces[0].status === -1) {
-            setFaceDetected(false);
-          }
+          setFaceDetected(true);
         }
-        setHasFinished(true);
+        setExposureValue(result?.returnValue?.exposure);
         break;
       default:
     }
+    if (loop) {
+      isValidCall(loop);
+    }
   };
 
-  return { faceDetected, isValidCall, hasFinished, setHasFinished };
+  return {
+    faceDetected,
+    isValidCall,
+    hasFinished,
+    setHasFinished,
+    exposureValue,
+  };
 };
 
 export default useIsValid;

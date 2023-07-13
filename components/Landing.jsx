@@ -24,11 +24,11 @@ const Landing = () => {
           <button className={styles.button} onClick={() => push('delete')}>
             Delete
           </button>
-          <button className={styles.button} onClick={() => push('scan-front-document')}>
+          {/* <button className={styles.button} onClick={() => push('scan-front-document')}>
             Scan Front Document
-          </button>
+          </button> */}
           <button className={styles.button} onClick={() => push('scan-validity')}>
-            Scan Front Document Validity (No identity)
+            Scan Front Document
           </button>
           <button className={styles.button} onClick={() => push('scan-back-document')}>
             Scan Back Document

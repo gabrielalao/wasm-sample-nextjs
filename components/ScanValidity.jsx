@@ -20,7 +20,7 @@ const ScanValidity = () => {
       {currentAction === "useScanDocumentFrontValidity" && (
             <div>
               <div>{`Scan Document Result: ${
-                isfoundValidity ? "Valid Front Document found" : "not found"
+                isfoundValidity ? "Document found" : "not found"
               }`}</div>
             </div>
           )}
@@ -29,7 +29,7 @@ const ScanValidity = () => {
 
       <div id="module_functions" className={styles.buttonContainer}>
         <button className={styles.button} onClick={handleFrontDLValidity}>
-        Scan Front Document Validity (No identity)
+        Scan Front Document
         </button>
       </div>
     </div>

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import {
   faceISO,
   convertCroppedImage,
-} from "@privateid/cryptonets-web-sdk-alpha";
+} from "@privateid/cryptonets-web-sdk";
 
 const usePrividFaceISO = () => {
   const [faceISOData, setFaceISOData] = useState(null);

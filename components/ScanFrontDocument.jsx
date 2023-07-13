@@ -62,3 +62,4 @@ const ScanFrontDocument = () => {
 };
 
 export default ScanFrontDocument;
+

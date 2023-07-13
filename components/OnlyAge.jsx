@@ -5,20 +5,10 @@ import styles from "../styles/Home.module.css";
 import Camera from "./Camera";
 
 const OnlyAge = () => {
-  const { doPredictAge, age, predictAgeHasFinished, setPredictAgeHasFinished } =
+  const { doPredictAge, age } =
     usePredictAge();
-  const [predictAge, setPredictAge] = useState(false);
-
-  useEffect(() => {
-    if (predictAge && !predictAgeHasFinished) {
-      doPredictAge();
-    } else {
-      setPredictAgeHasFinished(false);
-    }
-  }, [predictAgeHasFinished]);
 
   const handlePredictAge = () => {
-    setPredictAge(true);
     doPredictAge();
   };
 

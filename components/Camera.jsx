@@ -1,4 +1,4 @@
-import { closeCamera, switchCamera } from "@privateid/cryptonets-web-sdk-alpha";
+import { closeCamera, switchCamera } from "@privateid/cryptonets-web-sdk";
 import React, { useEffect, useMemo, useState } from "react";
 import { useCamera, useWasm } from "../hooks";
 import styles from "../styles/Home.module.css";
@@ -49,6 +49,7 @@ const Camera = ({
   const isDocumentScan = [
     "useScanDocumentFront",
     "useScanDocumentBack",
+    "useScanDocumentFrontValidity",
   ].includes(currentAction);
 
   useEffect(() => {
