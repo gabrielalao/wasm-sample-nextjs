@@ -1,36 +1,43 @@
 import { useState } from "react";
-import { predictAge } from "@privateid/cryptonets-web-sdk";
+import { predictAge } from "@privateid/cryptonets-web-sdk-alpha";
 
+let skipAntispoofGlobal = false;
 const usePredictAge = () => {
   const [age, setAge] = useState(null);
+  const [antispoofPerformed, setAntispoofPerformed] = useState(false);
+  const [antispoofStatus, setAntispoofStatus] = useState("");
+  const [validationStatus, setValidationStatus] = useState("");
 
-  const predictAgeCallback = (response) => {
-    console.log("RESPONSE USEPREDICT FE: ", response);
-    const { faces } = response.returnValue;
-    if (faces.length === 0) {
-      setAge(null);
-    } else {
-      for (let index = 0; faces.length > index; index++) {
-        const { status, age } = faces[index];
+  const callback = (response) => {
+    console.log("predict Age Callback", response);
 
-        if (age > 0) {
-          setAge(age);
-          index = faces.length;
-        }
+    // if (response?.returnValue?.faces.length > 0) {
+    //   setAge(response?.returnValue?.faces[0].age);
+    //   setAntispoofPerformed(response?.returnValue?.faces[0].anti_spoof_performed);
+    //   setAntispoofStatus(response?.returnValue?.faces[0].anti_spoof_status);
+    //   setValidationStatus(response?.returnValue?.faces[0].status);
+    // } else {
+    //   setAge("");
+    //   setAntispoofPerformed("");
+    //   setAntispoofStatus("");
+    //   setValidationStatus("");
+    // }
 
-        if (index + 1 === faces.length && age <= 0) {
-          setAge(null);
-        }
-      }
-    }
-    doPredictAge();
+    // doPredictAge(skipAntispoofGlobal);
   };
 
-  const doPredictAge = async () => {
-    const data = await predictAge(null, predictAgeCallback);
+  const doPredictAge = async (skipAntispoof = false) => {
+    skipAntispoofGlobal = skipAntispoof;
+    await predictAge({
+      callback,
+      config: {
+        skip_antispoof: true,
+        mf_count: 1,
+      },
+    });
   };
 
-  return { doPredictAge, age };
+  return { doPredictAge, age, antispoofPerformed, antispoofStatus, validationStatus };
 };
 
 export default usePredictAge;

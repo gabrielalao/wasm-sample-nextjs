@@ -1,4 +1,4 @@
-import { closeCamera, switchCamera } from "@privateid/cryptonets-web-sdk";
+import { closeCamera, switchCamera } from "@privateid/cryptonets-web-sdk-alpha";
 import React, { useEffect, useMemo, useState } from "react";
 import { useCamera, useWasm } from "../hooks";
 import styles from "../styles/Home.module.css";

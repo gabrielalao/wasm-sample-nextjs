@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { convertCroppedImage, isValidPhotoID } from "@privateid/cryptonets-web-sdk";
+import { convertCroppedImage, backScanDocument } from "@privateid/cryptonets-web-sdk-alpha";
 import { CANVAS_SIZE } from "../utils";
 
 let internalCanvasSize;
+let loop = true;
 const useScanBackDocument = (setShowSuccess) => {
   const [scannedCodeData, setScannedCodeData] = useState(null);
   const [isFound, setIsFound] = useState(false);
@@ -24,116 +25,149 @@ const useScanBackDocument = (setShowSuccess) => {
 
   const documentCallback = (result) => {
     console.log("--------- Back scan callback result:", result);
-    console.log("--------- returnedValue:", result.returnValue);
-    if (result.status === "WASM_RESPONSE") {
-      setBarcodeStatusCode(result.returnValue.op_status);
-      if (result.returnValue.op_status === 0) {
-        const {
-          firstName,
-          middleName,
-          lastName,
-          dateOfBirth,
-          gender,
-          streetAddress1,
-          streetAddress2,
-          state,
-          city,
-          postCode,
-          issuingCountry,
-        } = result.returnValue;
-        const finalResult = {
-          firstName,
-          middleName,
-          lastName,
-          dateOfBirth,
-          gender,
-          streetAddress1,
-          streetAddress2,
-          state,
-          city,
-          postCode,
-          issuingCountry,
-        };
-        setResultValue(result.returnValue);
+
+    if(result.barcode_scan){
+      if (result.barcode_detection_status === 0) {
+        setBarcodeStatusCode(0);
         setIsFound(true);
-        setScannedCodeData(finalResult);
-        setShowSuccess(true);
-        return finalResult;
+        setResultValue(result);
+        setScannedCodeData(result);
       } else {
-        setResultValue(null);
+        setBarcodeStatusCode(result.document_validation_status || result.barcode_detection_status);
+        doScanBackDocument();
       }
     }
-    setCroppedDocumentImageData(null);
-    setCroppedBarcodeImageData(null);
-    setInputImageData(null);
-    scanBackDocument();
+    else{
+      if(result.doc_validation_status === 0){
+        setBarcodeStatusCode(0);
+        setIsFound(true);
+        setResultValue(result);
+        setScannedCodeData(result);
+      } 
+      else{
+        setBarcodeStatusCode(result.doc_validation_status);
+        doScanBackDocument();
+      }
+    }
+
+  
   };
 
-  const convertImageData = async (imageData, width, height, setState, message = "") => {
-    if (width * height * 4 === imageData.length) {
-      const convertedImage = await convertCroppedImage(imageData, width, height);
-      console.log(message, convertedImage);
-      setState(convertedImage);
+  const doConvert = async (message, imageData) => {
+    try {
+      if (imageData.data.length === imageData.width * imageData.height * 4) {
+        const b64Converted = await convertCroppedImage(imageData.data, imageData.width, imageData.height);
+        console.log(`${message}`, b64Converted);
+        return b64Converted;
+      }
+    } catch (e) {
+      console.log(e);
     }
   };
 
   useEffect(() => {
     if (isFound && croppedDocumentImageData && returnValue) {
-      convertImageData(
-        croppedDocumentImageData,
-        returnValue.crop_doc_width,
-        returnValue.crop_doc_height,
-        setCroppedDocumentImage
-      );
+      console.log("cropped document start: ", { isFound, croppedDocumentImageData, returnValue });
+      if (croppedDocumentImageData?.length && returnValue?.cropped_document?.width) {
+        if (
+          croppedDocumentImageData.length ===
+          returnValue.cropped_document.width * returnValue.cropped_document.height * 4
+        ) {
+          const image = new ImageData(
+            croppedDocumentImageData,
+            returnValue.cropped_document.width,
+            returnValue.cropped_document.height
+          );
+          console.log("cropped document image:", image);
+          setCroppedDocumentImageData(image);
+          if (image?.data?.length) {
+            const b64 = doConvert("cropped document image:", image);
+            setCroppedDocumentImage(b64);
+          }
+        }
+      }
     }
   }, [isFound, croppedDocumentImageData, returnValue]);
 
   useEffect(() => {
     if (isFound && croppedBarcodeImageData && returnValue) {
-      convertImageData(
-        croppedBarcodeImageData,
-        returnValue.crop_barcode_width,
-        returnValue.crop_barcode_height,
-        setCroppedBarcodeImage,
-        "Barcode:"
-      );
+      console.log("cropped barcode start: ", { isFound, croppedBarcodeImageData, returnValue });
+      console.log("data length:", croppedBarcodeImageData?.length);
+      if (croppedBarcodeImageData?.length && returnValue?.cropped_barcode?.width) {
+        console.log("converting?");
+        if (
+          croppedBarcodeImageData.length ===
+          returnValue.cropped_barcode.width * returnValue.cropped_barcode.height * 4
+        ) {
+          const image = new ImageData(
+            croppedBarcodeImageData,
+            returnValue.cropped_barcode.width,
+            returnValue.cropped_barcode.height
+          );
+          console.log("cropped barcode image:", image);
+          setCroppedDocumentImageData(image);
+          if (image?.data?.length) {
+            const b64 = doConvert("cropped barcode image:", image);
+            setCroppedDocumentImage(b64);
+          }
+        }
+      }
     }
   }, [isFound, croppedBarcodeImageData, returnValue]);
 
   useEffect(() => {
     if (isFound && inputImageData) {
-      convertImageData(inputImageData, returnValue.image_width, returnValue.image_height, setInputImage);
+      if (isFound && inputImageData?.data?.length) {
+        const b64 = doConvert("input image:", inputImageData);
+        setCroppedDocumentImage(b64);
+      }
     }
   }, [isFound, inputImageData]);
 
-  useEffect(() => {
-    if (croppedDocumentImage && croppedBarcodeImage && inputImage) {
-      console.log("Barcode Images:", { inputImage, croppedBarcodeImage, croppedDocumentImage });
-    }
-  }, [croppedDocumentImage, croppedBarcodeImage, inputImage]);
-
-  const scanBackDocument = async (canvasSize) => {
-    if (canvasSize && canvasSize !== internalCanvasSize) {
-      internalCanvasSize = canvasSize;
-    }
-    const canvasObj = canvasSize ? CANVAS_SIZE[canvasSize] : internalCanvasSize ? CANVAS_SIZE[internalCanvasSize] : {};
-    const { result, croppedBarcode, croppedDocument, imageData } = await isValidPhotoID(
-      "PHOTO_ID_BACK",
-      documentCallback,
-      true,
-      undefined,
-      { document_scan_barcode_only: true },
-      canvasObj
-    );
-    console.log({croppedBarcode, croppedDocument, imageData})
-    if(croppedBarcode && croppedDocument && imageData){
-      setCroppedDocumentImageData(croppedDocument);
-      setCroppedBarcodeImageData(croppedBarcode);
-      setInputImageData(imageData);
-    }
+  const doScanBackDocument = async (canvasSize, functionLoop = false, uploadData = undefined) => {
+    // const canvasObj = canvasSize ? CANVAS_SIZE[canvasSize] : internalCanvasSize ? CANVAS_SIZE[internalCanvasSize] : {};
+    const { result, croppedBarcode, croppedDocument, imageData } = await backScanDocument({
+      callback: documentCallback,
+      // image: uploadData,
+      config: {
+        document_scan_barcode_only: true,
+        blur_threshold_barcode: 1000,
+        blur_threshold_doc: 1000,
+        conf_score_thr_doc: 0.3,
+        threshold_doc_too_close: 99,
+        threshold_doc_too_far: 0,
+        fingers_over_document_threshold: 0.3,
+        barcode_margin: 0.1,
+      },
+    });
+    console.log({ croppedBarcode, croppedDocument, imageData });
+    setCroppedBarcodeImageData(croppedBarcode);
+    setCroppedDocumentImageData(croppedDocument);
+    setInputImageData(imageData);
   };
 
-  return { scanBackDocument, scannedCodeData, isFound, croppedDocumentImage, croppedBarcodeImage, barcodeStatusCode };
+  const clearStatusBackScan = () => {
+    setIsFound(false);
+    setScannedCodeData(null);
+    setInputImageData(null);
+    setInputImage(null);
+    setCroppedDocumentImageData(null);
+    setCroppedDocumentImage(null);
+    setCroppedBarcodeImageData(null);
+    setCroppedBarcodeImage(null);
+    setBarcodeStatusCode(null);
+    setResultValue(null);
+  };
+
+  return {
+    scanBackDocument: doScanBackDocument,
+    scannedCodeData,
+    isFound,
+    croppedDocumentImage,
+    croppedBarcodeImage,
+    barcodeStatusCode,
+    clearStatusBackScan,
+  };
 };
 
 export default useScanBackDocument;

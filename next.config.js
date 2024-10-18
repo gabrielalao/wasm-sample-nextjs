@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const withTM = require("next-transpile-modules")([
-  "@privateid/cryptonets-web-sdk",
+  "@privateid/cryptonets-web-sdk-alpha",
 ]);
 
 const nextConfig = {

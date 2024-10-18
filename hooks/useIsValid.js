@@ -1,47 +1,36 @@
 import { useState } from "react";
-import { isValid } from "@privateid/cryptonets-web-sdk";
+import { isValid } from "@privateid/cryptonets-web-sdk-alpha";
 
+const useIsValid = (element = "userVideo", deviceId = null) => {
+  const [antispoofPerformed, setAntispoofPerformed] = useState("");
+  const [antispoofStatus, setAntispoofStatus] = useState("");
+  const [isValidStatus, setIsValidStatus] = useState("");
 
-const useIsValid = () => {
-  const [loop, setLoop] = useState(false);
-  const [faceDetected, setFaceDetected] = useState(false);
-  const [hasFinished, setHasFinished] = useState(false);
-  const [exposureValue, setExposureValue] = useState(0);
+  const callback = (response) => {
+    console.log("isValid Response:", response);
 
-  const isValidCall = async (loopIsValid) => {
-    setLoop(loopIsValid);
-    setTimeout(()=>{
-       isValid(callback, undefined, {
-        input_image_format: "rgba",
-      });
-    },500)
-  };
-
-  const callback = async (result) => {
-    console.log("callback hook result isValid:", result);
-    switch (result.status) {
-      case "WASM_RESPONSE":
-        if (result.returnValue.faces.length === 0) {
-          setFaceDetected(false);
-        } else {
-          setFaceDetected(true);
-        }
-        setExposureValue(result?.returnValue?.exposure);
-        break;
-      default:
+    if (response?.returnValue?.faces?.length > 0) {
+      setAntispoofPerformed(response?.returnValue?.faces[0].anti_spoof_performed);
+      setAntispoofStatus(response?.returnValue?.faces[0].anti_spoof_status);
+      setIsValidStatus(response?.returnValue?.faces[0].status);
+    } else {
+      setAntispoofPerformed("");
+      setAntispoofStatus("");
+      setIsValidStatus("");
     }
-    if (loop) {
-      isValidCall(loop);
-    }
+    isValidCall();
   };
 
-  return {
-    faceDetected,
-    isValidCall,
-    hasFinished,
-    setHasFinished,
-    exposureValue,
+  const isValidCall = async (skipAntispoof = true) => {
+    // eslint-disable-next-line no-unused-vars
+    await isValid(callback, null, {
+      input_image_format: "rgba",
+      gray_scale_variance_threshold: 100.0,
+      gray_scale_threshold: 14,
+    });
   };
+
+  return { antispoofPerformed, antispoofStatus, isValidStatus, isValidCall };
 };
 
 export default useIsValid;

@@ -1,86 +1,87 @@
 import { useState } from "react";
-import {
-  enrollPredict,
-  predictOneFA,
-} from "@privateid/cryptonets-web-sdk";
+import { predict } from "@privateid/cryptonets-web-sdk-alpha";
+import { getStatusMessage } from "@privateid/cryptonets-web-sdk-alpha/dist/utils";
+
+let loop = true;
+let skipAntispoofProcess = false;
+let identifierGlobal = undefined;
+let collectionNameGlobal = undefined;
 
 const usePredict = (
-  element,
-  onSuccess,
-  onFailure,
-  onNotFound,
-  retryTimes = 1
+  {
+    onSuccess,
+    disableButtons
+  }
 ) => {
-  const [faceDetected, setFaceDetected] = useState(false);
-  const [predictResultData, setPredictResultData] = useState(null);
-  let successCallback = null;
-  let tries = 0;
-  let failureTries = 0;
+  const [predictMessage, setPredictMessage] = useState("");
 
-  const predictUser = async (onSuccessCallback) => {
-    if (onSuccessCallback) {
-      successCallback = onSuccessCallback;
-    }
-    await predictOneFA(
-      callback,
-      {
-        input_image_format: "rgba",
-      },
-      element
-    );
-  };
-
-  // const stopTracks = () => {
-  //   const { srcObject } = document.getElementById(element || 'userVideo');
-  //   srcObject.getTracks().forEach((track) => track.stop());
-  // };
+  const [predictAntispoofPerformed, setPredictAntispoofPerformed] = useState("");
+  const [predictAntispoofStatus, setPredictAntispoofStatus] = useState("");
+  const [predictValidationStatus, setPredictValidationStatus] = useState("");
+  const [predictGUID, setPredictGUID] = useState("");
+  const [predictPUID, setPredictPUID] = useState("");
 
   const callback = async (result) => {
-    switch (result.status) {
-      case "VALID_FACE":
-        setFaceDetected(true);
-        break;
-      case "INVALID_FACE":
-        if (failureTries === retryTimes) {
-          onNotFound();
-        } else {
-          failureTries += 1;
-        }
-        break;
-      case "WASM_RESPONSE":
-      case -1:
-        if (result.returnValue.status === 0) {
-          // stopTracks();
-          setPredictResultData(
-            result.returnValue.PI.guid,
-            result.returnValue.PI.uuid
-          );
-          if (successCallback) {
-            successCallback(
-              result.returnValue.PI.guid,
-              result.returnValue.PI.uuid
-            );
-          } else {
-            onSuccess(result.returnValue.PI.guid, result.returnValue.PI.uuid);
-          }
-          successCallback = null;
-        }
-        if (result.returnValue.status === -1) {
-          if (tries === retryTimes) {
-            // stopTracks();
-            onFailure();
-          } else {
-            tries += 1;
-            await predictUser();
-          }
-        }
-        break;
-      default:
-        break;
+    console.log("predict callback hook result:", result);
+
+    if (result.guid && result.puid) {
+      setPredictGUID(result.guid);
+      setPredictPUID(result.puid);
+      setPredictAntispoofStatus(result.antispoof_status);
+      setPredictValidationStatus(result.face_validation_status);
+      setPredictMessage(getStatusMessage(result.face_validation_status));
+      disableButtons(false);
+      onSuccess();
+    } else {
+      setPredictAntispoofStatus(result.antispoof_status);
+      setPredictValidationStatus(result.face_validation_status);
+      if(loop){
+        predictUserOneFa(skipAntispoofProcess, collectionNameGlobal, identifierGlobal);
+      }
     }
   };
 
-  return { faceDetected, predictUser, predictResultData };
+  const predictUserOneFa = async (
+    skipAntispoof = false,
+    collectionName = undefined,
+    identifier = undefined,
+    image = undefined
+  ) => {
+    skipAntispoofProcess = skipAntispoof;
+    collectionNameGlobal = collectionName;
+    identifierGlobal = identifier;
+    // eslint-disable-next-line no-unused-vars
+    setPredictAntispoofPerformed("");
+    setPredictAntispoofStatus("");
+    setPredictValidationStatus("");
+    setPredictGUID("");
+    setPredictPUID("");
+    disableButtons(true);
+
+    if(image){
+      loop = false;
+    }
+
+    await predict({
+      callback,
+      config: {
+        collection_name: collectionNameGlobal,
+        skip_antispoof: skipAntispoofProcess,
+        identifier,
+      },
+      image: image,
+    });
+  };
+
+  return {
+    predictUserOneFa,
+    predictMessage,
+    predictAntispoofPerformed,
+    predictAntispoofStatus,
+    predictValidationStatus,
+    predictGUID,
+    predictPUID,
+  };
 };
 
 export default usePredict;
